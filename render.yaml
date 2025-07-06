@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: leilao-veiculos
+    env: node
+    plan: free
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
+    envVars:
+      - key: PORT
+        value: 4000
+      - key: JWT_SECRET
+        value: sua_chave_secreta
+      - key: MONGODB_URI
+        value: mongodb://mongo:27017/leilao
+    healthCheckPath: /

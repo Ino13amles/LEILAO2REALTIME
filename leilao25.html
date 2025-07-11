@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Leilão de Veículos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .header h1 {
+            color: #4a5568;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .login-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 400px;
+            margin: 50px auto;
+        }
+        
+        .form-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        label {
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        
+        input, select, textarea {
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+        
+        .vehicles-table {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        th {
+            background: #f7fafc;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        
+        tr:hover {
+            background: #f7fafc;
+        }
+        
+        .category-badge {
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .cat-circulacao { background: #48bb78; }
+        .cat-sucata-aproveitavel { background: #ed8936; }
+        .cat-sucata-inservivel { background: #f56565; }
+        .cat-bloqueio-policial { background: #9f7aea; }
+        .cat-bloqueio-renajud { background: #4299e1; }
+        .cat-outras-situacoes { background: #718096; }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .admin-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .user-management {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .user-list {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .user-item:last-child {
+            border-bottom: none;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+        
+        .error {
+            color: #e53e3e;
+            background: #fed7d7;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .success {
+            color: #38a169;
+            background: #c6f6d5;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .user-info {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            table {
+                font-size: 14px;
+            }
+            
+            th, td {
+                padding: 8px;
+            }
+        }
+        
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        
+        .firebase-config {
+            background: #e6fffa;
+            border: 1px solid #81e6d9;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .firebase-config h3 {
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+        
+        .firebase-config code {
+            background: #f7fafc;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Firebase Configuration Notice -->
+        <div id="configNotice" class="firebase-config">
+            <h3>🔧 Configuração do Firebase Necessária</h3>
+            <p>Para usar este sistema, você precisa:</p>
+            <ol>
+                <li>Criar um projeto no <a href="https://console.firebase.google.com/" target="_blank">Firebase Console</a></li>
+                <li>Ativar Authentication (Email/Password) e Firestore Database</li>
+                <li>Substituir a configuração em <code>firebaseConfig</code> no JavaScript</li>
+                <li>Criar um usuário admin inicial no Firebase Console</li>
+            </ol>
+        </div>
+
+        <!-- Login Section -->
+        <div id="loginSection" class="login-section">
+            <h2 style="text-align: center; margin-bottom: 20px; color: #4a5568;">Acesso ao Sistema</h2>
+            <div id="loginError" class="error hidden"></div>
+            <div class="form-group">
+                <label for="loginEmail">Email:</label>
+                <input type="email" id="loginEmail" placeholder="Digite seu email">
+            </div>
+            <div class="form-group" style="margin-top: 15px;">
+                <label for="loginPassword">Senha:</label>
+                <input type="password" id="loginPassword" placeholder="Digite sua senha">
+            </div>
+            <button class="btn" id="loginBtn" style="width: 100%; margin-top: 20px;" onclick="login()">Entrar</button>
+            <div class="loading hidden" id="loginLoading">Fazendo login...</div>
+        </div>
+        
+        <!-- Main System -->
+        <div id="mainSystem" class="hidden">
+            <div class="header">
+                <h1>Sistema de Leilão de Veículos</h1>
+                <div class="user-info">
+                    <span id="currentUser"></span>
+                    <button class="btn btn-danger" onclick="logout()">Sair</button>
+                </div>
+            </div>
+            
+            <!-- Admin Section -->
+            <div id="adminSection" class="admin-section hidden">
+                <h3>Área do Administrador</h3>
+                <div class="user-management">
+                    <div>
+                        <h4>Cadastrar Novo Usuário</h4>
+                        <div id="userError" class="error hidden"></div>
+                        <div id="userSuccess" class="success hidden"></div>
+                        <div class="form-group">
+                            <label>Email:</label>
+                            <input type="email" id="newUserEmail" placeholder="email@exemplo.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Senha:</label>
+                            <input type="password" id="newUserPassword" placeholder="Senha (min. 6 caracteres)">
+                        </div>
+                        <div class="form-group">
+                            <label>Nome:</label>
+                            <input type="text" id="newUserName" placeholder="Nome completo">
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo:</label>
+                            <select id="newUserType">
+                                <option value="user">Usuário</option>
+                                <option value="admin">Administrador</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-success" id="addUserBtn" onclick="addUser()">Adicionar Usuário</button>
+                    </div>
+                    <div class="user-list">
+                        <h4>Usuários Cadastrados</h4>
+                        <div id="usersList" class="loading">Carregando usuários...</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Vehicle Registration Form -->
+            <div class="form-section">
+                <h2>Cadastro de Veículo</h2>
+                <div id="vehicleError" class="error hidden"></div>
+                <div id="vehicleSuccess" class="success hidden"></div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="marca">Marca:</label>
+                        <input type="text" id="marca" placeholder="Ex: Toyota">
+                    </div>
+                    <div class="form-group">
+                        <label for="modelo">Modelo:</label>
+                        <input type="text" id="modelo" placeholder="Ex: Corolla">
+                    </div>
+                    <div class="form-group">
+                        <label for="cor">Cor:</label>
+                        <input type="text" id="cor" placeholder="Ex: Branco">
+                    </div>
+                    <div class="form-group">
+                        <label for="ano">Ano de Fabricação:</label>
+                        <input type="number" id="ano" placeholder="Ex: 2020">
+                    </div>
+                    <div class="form-group">
+                        <label for="placa">Placa:</label>
+                        <input type="text" id="placa" placeholder="Ex: ABC-1234">
+                    </div>
+                    <div class="form-group">
+                        <label for="chassi">Chassi:</label>
+                        <input type="text" id="chassi" placeholder="Número do chassi">
+                    </div>
+                    <div class="form-group">
+                        <label for="motor">Motor:</label>
+                        <input type="text" id="motor" placeholder="Ex: 1.8 16V">
+                    </div>
+                    <div class="form-group">
+                        <label for="categoria">Categoria:</label>
+                        <select id="categoria">
+                            <option value="Veículos para Circulação">Veículos para Circulação</option>
+                            <option value="Sucatas Aproveitáveis com Motor Inservível">Sucatas Aproveitáveis com Motor Inservível</option>
+                            <option value="Sucatas Inservíveis">Sucatas Inservíveis</option>
+                            <option value="Veículos Bloqueios Policiais">Veículos Bloqueios Policiais</option>
+                            <option value="Veículos com Bloqueios Renajud">Veículos com Bloqueios Renajud</option>
+                            <option value="Outras Situações">Outras Situações</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="outrasituacoes">Outras Situações:</label>
+                        <input type="text" id="outrasituacoes" placeholder="Descreva a situação específica">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="observacoes">Observações:</label>
+                    <textarea id="observacoes" rows="3" placeholder="Observações adicionais..."></textarea>
+                </div>
+                <button class="btn" id="addVehicleBtn" onclick="addVehicle()">Cadastrar Veículo</button>
+            </div>
+            
+            <!-- Statistics -->
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalVehicles">0</div>
+                    <div>Total de Veículos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="circulacaoCount">0</div>
+                    <div>Para Circulação</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="sucataAproveitavelCount">0</div>
+                    <div>Sucatas Aproveitáveis</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="sucataInservivelCount">0</div>
+                    <div>Sucatas Inservíveis</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="bloqueioPoliciaisCount">0</div>
+                    <div>Bloqueios Policiais</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="bloqueioRenajudCount">0</div>
+                    <div>Bloqueios Renajud</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="outrasSituacoesCount">0</div>
+                    <div>Outras Situações</div>
+                </div>
+            </div>
+            
+            <!-- Export Buttons -->
+            <div class="export-buttons">
+                <button class="btn btn-success" onclick="exportToExcel()">Exportar Excel</button>
+                <button class="btn" onclick="printTable()">Imprimir Relatório</button>
+            </div>
+            
+            <!-- Vehicles Table -->
+            <div class="vehicles-table">
+                <h2>Veículos Cadastrados</h2>
+                <div id="vehiclesLoading" class="loading">Carregando veículos...</div>
+                <table id="vehiclesTable" class="hidden">
+                    <thead>
+                        <tr>
+                            <th>Marca</th>
+                            <th>Modelo</th>
+                            <th>Cor</th>
+                            <th>Ano</th>
+                            <th>Placa</th>
+                            <th>Chassi</th>
+                            <th>Motor</th>
+                            <th>Categoria</th>
+                            <th>Outras Situações</th>
+                            <th>Observações</th>
+                            <th id="actionsHeader" class="hidden">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vehiclesBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <script>
+        // ⚠️ IMPORTANTE: Substitua por sua configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "your-api-key",
+            authDomain: "your-project.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "your-app-id"
+        };
+        
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        // Variáveis globais
+        let currentUser = null;
+        let vehicles = [];
+        let users = [];
+        
+        // Verificar se o usuário está logado
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                await loadUserData();
+                showMainSystem();
+            } else {
+                currentUser = null;
+                showLoginSection();
+            }
+        });
+        
+        // Carregar dados do usuário
+        async function loadUserData() {
+            try {
+                const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    document.getElementById('currentUser').textContent = 
+                        `Usuário: ${userData.name || currentUser.email} (${userData.type === 'admin' ? 'Administrador' : 'Usuário'})`;
+                    
+                    if (userData.type === 'admin') {
+                        document.getElementById('adminSection').classList.remove('hidden');
+                        document.getElementById('actionsHeader').classList.remove('hidden');
+                        await loadUsers();
+                    }
+                } else {
+                    // Criar perfil básico se não existir
+                    await db.collection('users').doc(currentUser.uid).set({
+                        email: currentUser.email,
+                        name: currentUser.displayName || currentUser.email,
+                        type: 'user',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+                
+                await loadVehicles();
+            } catch (error) {
+                console.error('Erro ao carregar dados do usuário:', error);
+            }
+        }
+        
+        // Mostrar seção de login
+        function showLoginSection() {
+            document.getElementById('loginSection').classList.remove('hidden');
+            document.getElementById('mainSystem').classList.add('hidden');
+            document.getElementById('adminSection').classList.add('hidden');
+        }
+        
+        // Mostrar sistema principal
+        function showMainSystem() {
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('mainSystem').classList.remove('hidden');
+        }
+        
+        // Login
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const loginLoading = document.getElementById('loginLoading');
+            const loginError = document.getElementById('loginError');
+            
+            if (!email || !password) {
+                showError('loginError', 'Preencha todos os campos!');
+                return;
+            }
+            
+            try {
+                loginBtn.disabled = true;
+                loginLoading.classList.remove('hidden');
+                loginError.classList.add('hidden');
+                
+                await auth.signInWithEmailAndPassword(email, password);
+                
+                // Limpar campos
+                document.getElementById('loginEmail').value = '';
+                document.getElementById('loginPassword').value = '';
+                
+            } catch (error) {
+                console.error('Erro no login:', error);
+                let errorMessage = 'Erro ao fazer login. Tente novamente.';
+                
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        errorMessage = 'Usuário não encontrado.';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage = 'Senha incorreta.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Email inválido.';
+                        break;
+                    case 'auth/user-disabled':
+                        errorMessage = 'Usuário desabilitado.';
+                        break;
+                }
+                
+                showError('loginError', errorMessage);
+            } finally {
+                loginBtn.disabled = false;
+                loginLoading.classList.add('hidden');
+            }
+        }
+        
+        // Logout
+        async function logout() {
+            try {
+                await auth.signOut();
+            } catch (error) {
+                console.error('Erro no logout:', error);
+            }
+        }
+        
+        // Carregar usuários (só admin)
+        async function loadUsers() {
+            try {
+                const usersSnapshot = await db.collection('users').get();
+                users = [];
+                usersSnapshot.forEach(doc => {
+                    users.push({ id: doc.id, ...doc.data() });
+                });
+                updateUsersList();
+            } catch (error) {
+                console.error('Erro ao carregar usuários:', error);
+            }
+        }
+        
+        // Adicionar usuário (só admin)
+        async function addUser() {
+            const email = document.getElementById('newUserEmail').value;
+            const password = document.getElementById('newUserPassword').value;
+            const name = document.getElementById('newUserName').value;
+            const type = document.getElementById('newUserType').value;
+            const addUserBtn = document.getElementById('addUserBtn');
+            
+            if (!email || !password || !name) {
+                showError('userError', 'Preencha todos os campos!');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showError('userError', 'A senha deve ter pelo menos 6 caracteres!');
+                return;
+            }
+            
+            try {
+                addUserBtn.disabled = true;
+                hideMessages('userError', 'userSuccess');
+                
+                // Criar usuário no Firebase Auth
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                // Criar documento do usuário no Firestore
+                await db.collection('users').doc(user.uid).set({
+                    email: email,
+                    name: name,
+                    type: type,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Fazer logout do usuário recém-criado para manter o admin logado
+                await auth.signOut();
+                
+                // Limpar campos
+                document.getElementById('newUserEmail').value = '';
+                document.getElementById('newUserPassword').value = '';
+                document.getElementById('newUserName').value = '';
+                
+                showSuccess('userSuccess', 'Usuário adicionado com sucesso!');
+                await loadUsers();
+                
+            } catch (error) {
+                console.error('Erro ao adicionar usuário:', error);
+                let errorMessage = 'Erro ao adicionar usuário. Tente novamente.';
+                
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage = 'Este email já está em uso.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Email inválido.';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage = 'A senha é muito fraca.';
+                        break;
+                }
+                
+                showError('userError', errorMessage);
+            } finally {
+                addUserBtn.disabled = false;
+            }
+        }
+        
+        // Atualizar lista de usuários
+        function updateUsersList() {
+            const usersList = document.getElementById('usersList');
+            usersList.innerHTML = '';
+            
+            if (users.length === 0) {
+                usersList.innerHTML = '<p>Nenhum usuário encontrado.</p>';
+                return;
+            }
+            
+            users.forEach(user => {
+                const userItem = document.createElement('div');
+                userItem.className = 'user-item';
+                userItem.innerHTML = `
+                    <div>
+                        <strong>${user.name || user.email}</strong><br>
+                        <small>${user.email} (${user.type === 'admin' ? 'Admin' : 'Usuário'})</small>
+                    </div>
+                    ${user.type !== 'admin' ? `<button class="btn btn-danger" style="padding: 5px 10px; font-size: 12px;" onclick="removeUser('${user.id}')">Remover</button>` : ''}
+                `;
+                usersList.appendChild(userItem);
+            });
+        }
+        
+        // Remover usuário
+        async function removeUser(userId) {
+            if (!confirm('Tem certeza que deseja remover este usuário?')) {
+                return;
+            }
+            
+            try {
+                await db.collection('users').doc(userId).delete();
+                showSuccess('userSuccess', 'Usuário removido com sucesso!');
+                await loadUsers();
+            } catch (error) {
+                console.error('Erro ao remover usuário:', error);
+                showError('userError', 'Erro ao remover usuário.');
+            }
+        }
+        
+        // Carregar veículos
+        async function loadVehicles() {
+            try {
+                document.getElementById('vehiclesLoading').classList.remove('hidden');
+                document.getElementById('vehiclesTable').classList.add('hidden');
+                
+                const vehiclesSnapshot = await db.collection('vehicles').orderBy('createdAt', 'desc').get();
+                vehicles = [];
+                vehiclesSnapshot.forEach(doc => {
+                    vehicles.push({ id: doc.id, ...doc.data() });
+                });
+                
+                updateTable();
+                updateStats();
+                
+                document.getElementById('vehiclesLoading').classList.add('hidden');
+                document.getElementById('vehiclesTable').classList.remove('hidden');
+            } catch (error) {
+                console.error('Erro ao carregar veículos:', error);
+                document.getElementById('vehiclesLoading').textContent = 'Erro ao carregar veículos.';
+            }
+        }
+        
+        // Adicionar veículo
+        async function addVehicle() {
+            const marca = document.getElementById('marca').value;
+            const modelo = document.getElementById('modelo').value;
+            const cor = document.getElementById('cor').value;
+            const ano = document.getElementById('ano').value;
+            const placa = document.getElementById('placa').value;
+            const chassi = document.getElementById('chassi').value;
+            const motor = document.getElementById('motor').value;
+            const categoria = document.getElementById('categoria').value;
+            const outrasituacoes = document.getElementById('outrasituacoes').value;
+            const observacoes = document.getElementById('observacoes').value;
+            const addVehicleBtn = document.getElementById('addVehicleBtn');
+            
+            if (!marca || !modelo || !cor || !ano || !placa || !chassi || !motor || !categoria) {
+                showError('vehicleError', 'Preencha todos os campos obrigatórios!');
+                return;
+            }
+            
+            if (categoria === 'Outras Situações' && !outrasituacoes) {
+                showError('vehicleError', 'Por favor, descreva a situação específica no campo "Outras Situações"!');
+                return;
+            }
